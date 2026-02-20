@@ -1,45 +1,45 @@
 using System;
+using System.Drawing;
 using System.Windows.Forms;
 
-namespace WinFormsBasic
+namespace WinFormsBasic;
+
+public class MainForm : Form
 {
-    public class MainForm : Form
+    Button manageBtn = new() { Text = "Manage Subscription" };
+    Button publishBtn = new() { Text = "Publish Notification", Enabled = false };
+    Button exitBtn = new() { Text = "Exit" };
+
+    NotificationService service = new();
+
+    public MainForm()
     {
-        Button manageBtn = new() { Text = "Manage Subscription" };
-        Button publishBtn = new() { Text = "Publish Notification", Enabled = false };
-        Button exitBtn = new() { Text = "Exit" };
+        Text = "Notification Manager";
+        Controls.AddRange(new Control[] { manageBtn, publishBtn, exitBtn });
 
-        NotificationService service = new();
+        manageBtn.Top = 20;
+        publishBtn.Top = 20;
+        exitBtn.Top = 20;
 
-        public MainForm()
+        manageBtn.Left = 20;
+        publishBtn.Left = 160;
+        exitBtn.Left = 340;
+
+        manageBtn.Click += (s, e) =>
         {
-            Text = "Notification Manager";
-            Controls.AddRange(new Control[] { manageBtn, publishBtn, exitBtn });
+            new SubscriptionForm(service, UpdatePublishButton).ShowDialog();
+        };
 
-            manageBtn.Top = 20;
-            publishBtn.Top = 20;
-            exitBtn.Top = 20;
-
-            manageBtn.Left = 20;
-            publishBtn.Left = 160;
-            exitBtn.Left = 340;
-
-            manageBtn.Click += (s, e) =>
-            {
-                new SubscriptionForm(service, UpdatePublishButton).ShowDialog();
-            };
-
-            publishBtn.Click += (s, e) =>
-            {
-                new Program(service).ShowDialog();
-            };
-
-            exitBtn.Click += (s, e) => Close();
-        }
-
-        void UpdatePublishButton()
+        publishBtn.Click += (s, e) =>
         {
-            publishBtn.Enabled = service.HasSubscribers();
-        }
+            new PublishForm(service).ShowDialog();
+        };
+
+        exitBtn.Click += (s, e) => Close();
+    }
+
+    void UpdatePublishButton()
+    {
+        publishBtn.Enabled = service.HasSubscribers();
     }
 }

@@ -2,44 +2,43 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
-namespace WinFormsBasic
+namespace WinFormsBasic;
+
+public delegate void NotificationHandler(string message);
+
+public class NotificationService
 {
-    public delegate void NotificationHandler(string message);
+    public event NotificationHandler Notify;
 
-    public class NotificationService
+    private HashSet<string> emails = new();
+    private HashSet<string> phones = new();
+
+    public bool AddEmail(string email)
     {
-        public event NotificationHandler Notify;
+        if (!Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
+            return false;
 
-        private HashSet<string> emails = new();
-        private HashSet<string> phones = new();
+        return emails.Add(email);
+    }
 
-        public bool AddEmail(string email)
-        {
-            if (!Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
-                return false;
+    public bool AddPhone(string phone)
+    {
+        if (!Regex.IsMatch(phone, @"^\d{3}-\d{3}-\d{4}$"))
+            return false;
 
-            return emails.Add(email);
-        }
+        return phones.Add(phone);
+    }
 
-        public bool AddPhone(string phone)
-        {
-            if (!Regex.IsMatch(phone, @"^\d{3}-\d{3}-\d{4}$"))
-                return false;
+    public void RemoveEmail(string email) => emails.Remove(email);
+    public void RemovePhone(string phone) => phones.Remove(phone);
 
-            return phones.Add(phone);
-        }
+    public void Publish(string message)
+    {
+        Notify?.Invoke(message);
+    }
 
-        public void RemoveEmail(string email) => emails.Remove(email);
-        public void RemovePhone(string phone) => phones.Remove(phone);
-
-        public void Publish(string message)
-        {
-            Notify?.Invoke(message);
-        }
-
-        public bool HasSubscribers()
-        {
-            return emails.Count > 0 || phones.Count > 0;
-        }
+    public bool HasSubscribers()
+    {
+        return emails.Count > 0 || phones.Count > 0;
     }
 }
