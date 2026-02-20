@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
-namespace NotificationApp
+namespace WinFormsBasic
 {
     public delegate void NotificationHandler(string message);
 
