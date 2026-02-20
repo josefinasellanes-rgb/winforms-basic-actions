@@ -31,7 +31,7 @@ namespace WinFormsBasic
 
             publishBtn.Click += (s, e) =>
             {
-                new PublishForm(service).ShowDialog();
+                new Program(service).ShowDialog();
             };
 
             exitBtn.Click += (s, e) => Close();
