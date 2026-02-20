@@ -1,113 +1,45 @@
 using System;
-using System.Drawing;
 using System.Windows.Forms;
 
-namespace WinFormsBasic;
-
-public sealed class MainForm : Form
+namespace NotificationApp
 {
-    private readonly TextBox _nameTextBox = new() { Dock = DockStyle.Fill };
-    private readonly Label _resultLabel = new() { Dock = DockStyle.Fill, AutoSize = true };
-
-    public MainForm()
+    public class MainForm : Form
     {
-        Text = "WinForms básico";
-        StartPosition = FormStartPosition.CenterScreen;
-        MinimumSize = new Size(560, 260);
-        AutoScaleMode = AutoScaleMode.Font;
+        Button manageBtn = new() { Text = "Manage Subscription" };
+        Button publishBtn = new() { Text = "Publish Notification", Enabled = false };
+        Button exitBtn = new() { Text = "Exit" };
 
-        var titleLabel = new Label
+        NotificationService service = new();
+
+        public MainForm()
         {
-            Text = "Demo WinForms (compilado con GitHub Actions)",
-            Dock = DockStyle.Fill,
-            AutoSize = true,
-            Font = new Font(SystemFonts.DefaultFont, FontStyle.Bold)
-        };
+            Text = "Notification Manager";
+            Controls.AddRange(new Control[] { manageBtn, publishBtn, exitBtn });
 
-        var nameLabel = new Label
-        {
-            Text = "Nombre:",
-            TextAlign = ContentAlignment.MiddleLeft,
-            Dock = DockStyle.Fill,
-            AutoSize = true
-        };
+            manageBtn.Top = 20;
+            publishBtn.Top = 20;
+            exitBtn.Top = 20;
 
-        var greetButton = new Button
-        {
-            Text = "Saludar",
-            AutoSize = true
-        };
-        greetButton.Click += (_, _) => Greet();
+            manageBtn.Left = 20;
+            publishBtn.Left = 160;
+            exitBtn.Left = 340;
 
-        var closeButton = new Button
-        {
-            Text = "Cerrar",
-            AutoSize = true
-        };
-        closeButton.Click += (_, _) => Close();
+            manageBtn.Click += (s, e) =>
+            {
+                new SubscriptionForm(service, UpdatePublishButton).ShowDialog();
+            };
 
-        _resultLabel.Text = "Escribe tu nombre y presiona Saludar.";
-        _resultLabel.Padding = new Padding(0, 8, 0, 0);
+            publishBtn.Click += (s, e) =>
+            {
+                new PublishForm(service).ShowDialog();
+            };
 
-        var buttons = new FlowLayoutPanel
-        {
-            Dock = DockStyle.Fill,
-            FlowDirection = FlowDirection.LeftToRight,
-            AutoSize = true,
-            WrapContents = false
-        };
-        buttons.Controls.Add(greetButton);
-        buttons.Controls.Add(closeButton);
-
-        var layout = new TableLayoutPanel
-        {
-            Dock = DockStyle.Fill,
-            Padding = new Padding(16),
-            ColumnCount = 2,
-            RowCount = 4
-        };
-
-        layout.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
-        layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-
-        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-        layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
-
-        layout.Controls.Add(titleLabel, 0, 0);
-        layout.SetColumnSpan(titleLabel, 2);
-
-        layout.Controls.Add(nameLabel, 0, 1);
-        layout.Controls.Add(_nameTextBox, 1, 1);
-
-        layout.Controls.Add(buttons, 1, 2);
-
-        layout.Controls.Add(_resultLabel, 0, 3);
-        layout.SetColumnSpan(_resultLabel, 2);
-
-        Controls.Add(layout);
-
-        AcceptButton = greetButton;
-        Shown += (_, _) => _nameTextBox.Focus();
-    }
-
-    private void Greet()
-    {
-        var name = _nameTextBox.Text.Trim();
-
-        if (string.IsNullOrEmpty(name))
-        {
-            MessageBox.Show(this,
-                "Por favor escribe tu nombre.",
-                "Falta el nombre",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information);
-
-            _nameTextBox.Focus();
-            return;
+            exitBtn.Click += (s, e) => Close();
         }
 
-        _resultLabel.Text = $"Hola, {name}! 👋";
+        void UpdatePublishButton()
+        {
+            publishBtn.Enabled = service.HasSubscribers();
+        }
     }
 }
